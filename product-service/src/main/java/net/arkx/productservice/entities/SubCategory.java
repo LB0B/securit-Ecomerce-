@@ -10,6 +10,7 @@ import java.util.Set;
 
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 @Entity
+@Table(name = "Sub_Category")
 public class SubCategory {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
