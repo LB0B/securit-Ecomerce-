@@ -24,14 +24,14 @@ public class UserServiceApplication {
         return args -> {
             List<User> userList = List.of(
                     User.builder()
-                            .username("test1")
+                            .userName("test1")
                             .password("1234")
                             .firstName("Hassan")
                             .lastName("Elhoumi")
                             .email("hassan@gmail.com")
                             .build(),
                     User.builder()
-                            .username("test2")
+                            .userName("test2")
                             .password("1234")
                             .firstName("Mohamed")
                             .lastName("Elhannaoui")

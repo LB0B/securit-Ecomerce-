@@ -2,6 +2,7 @@ package net.arkx.userservice.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -9,25 +10,30 @@ import java.util.*;
 @Entity
 @Table(name = "Utilisateur")
 public class User {
+
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String username;
-    private String password;
-    private String firstName;
-    private String lastName;
+    private Long id ;
+    private String userName ;
     private String email;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Address> addresses = new ArrayList<>();
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Notification notification;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private WishList wishlist;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Review review;
-    @ManyToMany(fetch = FetchType.LAZY)
+    private String password;
+    private String firstName ;
+    private String lastName ;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Review> reviews;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Address> addresses;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Notification> notifications;
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
+
     private Set<Role> roles = new HashSet<>();
   /*  private Date createdAt;
     private Date updateAt;

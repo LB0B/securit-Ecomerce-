@@ -6,11 +6,13 @@ import lombok.*;
 @Getter @Setter @ToString @AllArgsConstructor @NoArgsConstructor @Builder
 @Entity
 public class Review {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private Long id;
-    @OneToOne
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id ;
+    private String content ;
+    private int rating ;
+
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-   private String content;
-    private int rating;
 }

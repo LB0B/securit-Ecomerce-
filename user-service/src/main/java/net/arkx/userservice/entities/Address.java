@@ -6,12 +6,14 @@ import lombok.*;
 @Getter @Setter @ToString @AllArgsConstructor @NoArgsConstructor @Builder
 @Entity
 public class Address {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id ;
+    private String street ;
+    private String city ;
+    private Long postaleCode ;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-  private String street;
-  private String city;
-  private String postalCode;
 }
