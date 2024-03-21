@@ -82,8 +82,20 @@ public class SubCategoryService {
     }
 
 
-
-
+//Add subcateg to categ
+    public void addSubcategoryToCategory(long id_category, SubCategory subCategory) throws EntityNotFoundException
+    {
+        Optional<Category> optionalCategory=categoryRepository.findById(id_category);
+        if(optionalCategory.isPresent())
+        {
+            subCategory.setCategory(optionalCategory.get());
+            subCategoryRepository.save(subCategory);
+        }
+        else
+        {
+            throw new EntityNotFoundException("Category not found");
+        }
+    }
 
 
 
