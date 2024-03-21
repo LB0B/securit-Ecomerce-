@@ -13,7 +13,7 @@ import java.util.Set;
 @Table(name = "Sub_Category")
 public class SubCategory {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     @ManyToMany(mappedBy = "subcategories")
     private Set<Product> products;
     @ManyToOne
