@@ -16,5 +16,6 @@ public class Category {
     private long id;
     @OneToMany(mappedBy = "category")
     private List<SubCategory> subcategories;
+    @Column(unique = true)
     private String name;
 }
