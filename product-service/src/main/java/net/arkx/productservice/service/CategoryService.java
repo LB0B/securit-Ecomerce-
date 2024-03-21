@@ -36,6 +36,9 @@ public class CategoryService {
             categoryRepository.deleteById(id);
         }
     }
+    public void deleteAllCategory(){
+        categoryRepository.deleteAll();
+    }
 //UPDATE METHOD:
     public void updateCategory(Long id,Category category){
         if(categoryRepository.findById(id).isPresent()) {

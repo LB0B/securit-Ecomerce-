@@ -42,6 +42,10 @@ public class CategoryController {
     public void deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategoryById(id);
     }
+    @DeleteMapping
+    public void deleteAllCategories(){
+        categoryService.deleteAllCategory();
+    }
 
     //***********************************UPDATE METHOD******************************************************
     @PutMapping("{id}")
