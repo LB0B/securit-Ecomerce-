@@ -35,7 +35,7 @@ public class OrderServiceApplication {
                             .user_id(10L)
                             .build());
 
-            orderList.forEach(userService::save);
+            orderList.forEach(userService::addOrder);
         };
 
     }
