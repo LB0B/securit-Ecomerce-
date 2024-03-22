@@ -1,5 +1,6 @@
 package net.arkx.productservice.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ public class SubCategory {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @ManyToMany(mappedBy = "subcategories")
+    @JsonIgnore
     private Set<Product> products;
     @ManyToOne
     @JoinColumn(name = "category_id")
