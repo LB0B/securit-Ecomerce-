@@ -4,22 +4,14 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.*;
 import net.arkx.userservice.entities.User;
-import net.arkx.userservice.exception.DuplicateUsernameException;
-import net.arkx.userservice.exception.InvalidEmailException;
-import net.arkx.userservice.exception.InvalidPasswordException;
-import net.arkx.userservice.exception.UserNotFoundException;
+import net.arkx.userservice.exception.userExceptions.DuplicateUsernameException;
+import net.arkx.userservice.exception.userExceptions.InvalidEmailException;
+import net.arkx.userservice.exception.userExceptions.InvalidPasswordException;
+import net.arkx.userservice.exception.userExceptions.UserNotFoundException;
 import net.arkx.userservice.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,18 +64,18 @@ public class UserService  {
     }
 
     //Update User firstname & lastname
-    public User updateUser(String username, User updatedUser){
+    public User updatename(String username, String firstName, String lastName) {
         User existingUser = userRepository.findByUsername(username);
-        if (updatedUser != null) {
-            if (updatedUser.getFirstName() != null) {
-                existingUser.setFirstName(updatedUser.getFirstName());
+        if (existingUser != null) {
+            if (firstName != null) {
+                existingUser.setFirstName(firstName);
             }
-            if (updatedUser.getLastName() != null) {
-                existingUser.setLastName(updatedUser.getLastName());
+            if (lastName != null) {
+                existingUser.setLastName(lastName);
             }
+            existingUser = userRepository.save(existingUser);
         }
-        return userRepository.save(existingUser);
-
+        return existingUser;
     }
     // Update username
     public User updateUsername(String username, String newUsername){
@@ -152,7 +144,15 @@ public class UserService  {
                 })
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
-
-
+    //Delete by username
+    public User deleteUserByUsername(String username) {
+        User userToDelete = userRepository.findByUsername(username);
+        if (userToDelete != null) {
+            userRepository.delete(userToDelete);
+            return userToDelete;
+        } else {
+            throw new EntityNotFoundException("User with username " + username + " not found");
+        }
+    }
 
 }
