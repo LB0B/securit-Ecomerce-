@@ -5,10 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.*;
 import net.arkx.userservice.entities.Role;
 import net.arkx.userservice.entities.User;
-import net.arkx.userservice.exception.userExceptions.DuplicateUsernameException;
-import net.arkx.userservice.exception.userExceptions.InvalidEmailException;
-import net.arkx.userservice.exception.userExceptions.InvalidPasswordException;
-import net.arkx.userservice.exception.userExceptions.UserNotFoundException;
+import net.arkx.userservice.exception.userExceptions.*;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleAlreadyExistUserException;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleNotFoundException;
 import net.arkx.userservice.repository.RoleRepository;
@@ -41,7 +38,7 @@ public class UserService  {
     //Create User
     public User createUser(User user){
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            throw new EntityExistsException("This userName " + user.getUsername() + "  already exist ");
+            throw new UserAlreadyExistException("This userName " + user.getUsername() + "  already exist ");
         }
         return userRepository.save(user);
 

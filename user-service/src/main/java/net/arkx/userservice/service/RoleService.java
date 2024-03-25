@@ -2,6 +2,8 @@ package net.arkx.userservice.service;
 
 import net.arkx.userservice.entities.Role;
 import net.arkx.userservice.entities.User;
+import net.arkx.userservice.exception.userExceptions.UserAlreadyExistException;
+import net.arkx.userservice.exceptions.RoleExceptions.RoleAlreadyExistUserException;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleNotFoundException;
 import net.arkx.userservice.repository.RoleRepository;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,9 @@ public class RoleService {
 
     // Create Role
     public Role createRole(Role newRole){
+        if (roleRepository.findByName(newRole.getName()) != null) {
+            throw new RoleAlreadyExistUserException("This role " + newRole.getName() + "  already exist ");
+        }
         return roleRepository.save(newRole);
     }
     //Read all Roles
@@ -41,7 +46,7 @@ public class RoleService {
     // Update Role
 
     //Delete Role by name
-    public void deleteRole(String name){
+    public void deleteRoleByName(String name){
         Role role = roleRepository.findByName(name);
         roleRepository.delete(role);
     }
