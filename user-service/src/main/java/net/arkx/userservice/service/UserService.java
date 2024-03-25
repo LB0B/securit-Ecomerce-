@@ -3,15 +3,20 @@ package net.arkx.userservice.service;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.*;
+import net.arkx.userservice.entities.Role;
 import net.arkx.userservice.entities.User;
 import net.arkx.userservice.exception.userExceptions.DuplicateUsernameException;
 import net.arkx.userservice.exception.userExceptions.InvalidEmailException;
 import net.arkx.userservice.exception.userExceptions.InvalidPasswordException;
 import net.arkx.userservice.exception.userExceptions.UserNotFoundException;
+import net.arkx.userservice.exceptions.RoleExceptions.RoleAlreadyExistUserException;
+import net.arkx.userservice.exceptions.RoleExceptions.RoleNotFoundException;
+import net.arkx.userservice.repository.RoleRepository;
 import net.arkx.userservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,9 +26,11 @@ public class UserService  {
 
 
    private final UserRepository userRepository;
+   private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     public User save(User user) {
@@ -153,6 +160,42 @@ public class UserService  {
         } else {
             throw new EntityNotFoundException("User with username " + username + " not found");
         }
+    }
+    //Add Role
+    public User addRoleToUser(String username, String roleName) {
+        User userToAddRole = userRepository.findByUsername(username);
+        if (userToAddRole == null) {
+            throw new UserNotFoundException("User not found with username: " + username);
+        }
+        Set<Role> roles = userToAddRole.getRoles();
+        Role role = roleRepository.findByName(roleName);
+        if (roles.contains(role)) {
+            throw new RoleAlreadyExistUserException("User already has this role: " + role.getName());
+        }
+        roles.add(role);
+        return userRepository.save(userToAddRole);
+    }
+
+
+    //Delete Role
+    public User deleteRoleFromUser(String username, String roleName){
+        User userToDeleteRole = userRepository.findByUsername(username);
+        if(userToDeleteRole== null){
+           throw new UserNotFoundException("User not found with username: " + username);
+        }
+        Role role = roleRepository.findByName(roleName);
+        if(role==null){
+            throw new RoleNotFoundException("Role not found with name: " + roleName);
+
+        }
+        Set<Role> roles =userToDeleteRole.getRoles();
+
+        if(!roles.contains(role)){
+            throw new RoleAlreadyExistUserException("User already has this role: " + role.getName());
+
+        }
+        roles.remove(role);
+        return userRepository.save(userToDeleteRole);
     }
 
 }

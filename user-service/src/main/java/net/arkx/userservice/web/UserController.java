@@ -1,5 +1,6 @@
 package net.arkx.userservice.web;
 
+import net.arkx.userservice.entities.Role;
 import net.arkx.userservice.entities.User;
 import net.arkx.userservice.exception.userExceptions.DuplicateUsernameException;
 import net.arkx.userservice.exception.userExceptions.InvalidEmailException;
@@ -107,5 +108,14 @@ public class UserController {
     public User deleteByUsername(@RequestParam String username){
         return userService.deleteUserByUsername(username);
     }
+//Add Role to user
+    @PostMapping("/addRole")
+    public User addRoletoUser(@RequestParam String username, String role){
+        return userService.addRoleToUser(username,role);
 
+    }
+    @DeleteMapping("/deleteRole")
+    public User deleteRoleFromUser(@RequestParam String username, String role){
+        return userService.deleteRoleFromUser(username,role);
+    }
 }
