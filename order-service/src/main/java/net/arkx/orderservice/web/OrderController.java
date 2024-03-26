@@ -25,7 +25,7 @@ public class OrderController {
     public Order getOrderById(@PathVariable long id) throws Exception {
         return orderService.getOrderById(id);
     }
-    @PostMapping
+//    @PostMapping
     public void addOrder(@RequestBody Order order){
         orderService.addOrder(order);
     }
@@ -40,5 +40,13 @@ public class OrderController {
     @PutMapping("{id}")
     public void updateOrder(@PathVariable long id, @RequestBody OrderDto orderDto) throws Exception {
         orderService.updateOder(id, orderDto);
+    }
+    @PostMapping("{id}/coupon")
+    public void applyCoupon(@PathVariable long id, @RequestBody String couponCode) throws Exception {
+        orderService.couponApplication(id, couponCode);
+    }
+    @GetMapping("status")
+    public List<Order> findOrderByStatus(@RequestParam String status){
+        return orderService.findOrderByStatus(status);
     }
 }

@@ -10,8 +10,8 @@ import lombok.*;
 @Entity
 public class Invoice {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Double amount;
+    private long id;
+    private double amount;
     //add order attribute
-    private Order order;
+//    private Order order;
 }

@@ -34,7 +34,6 @@ public class OrderService {
         }
         Invoice invoice = new Invoice();
         invoice.setAmount(amount);
-        invoice.setOrder(order);
         order.setInvoice(invoice);
         invoiceRepository.save(invoice);
         orderRepository.save(order);
@@ -78,8 +77,32 @@ public class OrderService {
             throw new Exception();
         }
     }
-    //coupon method (in progress)
-    public void couponApplication(Order order, Coupon couponEntered){
-
+    //find order by status
+    public List<Order> findOrderByStatus(String status){
+        return orderRepository.findAllByStatus(status);
+    }
+    //coupon method
+    public void couponApplication(long orderId, String couponCode) throws Exception {
+        Optional<Coupon> optional = couponRepository.findByCode(couponCode);
+        // check if the coupon exits
+        if (optional.isPresent()){
+            // get the coupon
+            Coupon coupon = optional.get();
+            //get the order
+            Order order = getOrderById(orderId);
+            //get the invoice from the order
+            Invoice invoice = order.getInvoice();
+            //get the amount
+            double amount = invoice.getAmount();
+            //get the discount
+            double discount = coupon.getDiscount();
+            //apply the discount
+            amount = amount - amount*discount/100;
+            invoice.setAmount(amount);
+            order.setInvoice(invoice);
+        }
+        else{
+            throw new Exception();
+        }
     }
 }

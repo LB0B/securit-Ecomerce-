@@ -61,4 +61,17 @@ public class CouponService {
             throw new Exception();
         }
     }
+    //filter by discount
+    public List<Coupon> filterByDiscount(double min, double max){
+        return couponRepository.findByDiscountBetween(min, max);
+    }
+    //sort by discount
+    public List<Coupon> sortCouponByDiscount(boolean desc){
+        if (desc){
+            return couponRepository.findAllByOrderByDiscountDesc();
+        }
+        else {
+            return couponRepository.findAllByOrderByDiscountAsc();
+        }
+    }
 }

@@ -12,8 +12,8 @@ import java.util.Date;
 @Entity
 public class Coupon {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     private String code;
-    private Double discount;
+    private double discount;
     private Date expirationDate;
 }

@@ -40,4 +40,13 @@ public class CouponController {
     public void updateCoupon(@PathVariable long id, @RequestBody Coupon coupon) throws Exception {
         couponService.updateCoupon(id, coupon);
     }
+    @GetMapping("sort")
+    public List<Coupon> sort(@RequestParam(value = "desc" , defaultValue = "false" ) String desc){
+        return couponService.sortCouponByDiscount(desc.equals("true"));
+    }
+    @GetMapping("filter")
+    public List<Coupon> filterByPrice(@RequestParam(value = "min") double min,
+                                    @RequestParam(value = "max") double max){
+        return couponService.filterByDiscount(min, max);
+    }
 }
