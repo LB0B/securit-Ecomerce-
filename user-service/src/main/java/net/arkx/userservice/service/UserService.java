@@ -2,9 +2,11 @@ package net.arkx.userservice.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.*;
+import net.arkx.userservice.entities.Address;
 import net.arkx.userservice.entities.Notification;
 import net.arkx.userservice.entities.Role;
 import net.arkx.userservice.entities.User;
+import net.arkx.userservice.exceptions.addressException.AddressNotFoundException;
 import net.arkx.userservice.exceptions.notificationExceptions.NotificationNotFoundException;
 import net.arkx.userservice.exceptions.userExceptions.*;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleAlreadyExistUserException;
@@ -196,14 +198,14 @@ public class UserService  {
         return userRepository.save(userToDeleteRole);
     }
         // Add notification
-    public User addNotificationToUser(String username, Notification notification){
+    public void addNotificationToUser(String username, Notification notification){
         User user = userRepository.findByUsername(username);
         notification.setUser(user);
         user.getNotifications().add(notification);
-        return userRepository.save(user);
+         userRepository.save(user);
     }
     //Delete Notification from User
-    public User removeNotificationFromUser(String username, Long notificationId){
+    public void removeNotificationFromUser(String username, Long notificationId){
         User user = userRepository.findByUsername(username);
             if(user==null){
                 throw new UserNotFoundException("User not found with username: " + username);
@@ -215,8 +217,36 @@ public class UserService  {
             user.getNotifications().remove(notificationToRemove);
             notificationToRemove.setUser(null);
             userRepository.save(user);
-            return user;
-
 
     }
+    //Add Address To User
+    public void addAddressToUser(String username, Address address){
+        User user = userRepository.findByUsername(username);
+        if(user==null){
+            throw new UserNotFoundException("User not found with username: " + username);
+        }
+        address.setUser(user);
+        user.getAddresses().add(address);
+        userRepository.save(user);
+    }
+
+    //Delete Address from User
+    public void removeAddressFromUser(String username, Long addressId){
+        User user = userRepository.findByUsername(username);
+        if(user==null){
+            throw new UserNotFoundException("User not found with username: " + username);
+        }
+        Address addressToRemove = user.getAddresses().stream()
+                .filter(address -> address.getId().equals(addressId))
+                .findFirst()
+                .orElseThrow(()->  new AddressNotFoundException("Address not found with ID: " + addressId));
+        user.getAddresses().remove(addressToRemove);
+        addressToRemove.setUser(null);
+        userRepository.save(user);
+    }
+
+
+
+
+
 }

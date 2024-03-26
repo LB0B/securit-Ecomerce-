@@ -1,5 +1,6 @@
 package net.arkx.userservice.web;
 
+import net.arkx.userservice.entities.Address;
 import net.arkx.userservice.entities.Notification;
 import net.arkx.userservice.entities.User;
 import net.arkx.userservice.exceptions.userExceptions.DuplicateUsernameException;
@@ -131,4 +132,20 @@ public class UserController {
          userService.removeNotificationFromUser(username, notificationId);
          return ResponseEntity.ok().build();
     }
+
+    //Add Address to User
+    @PostMapping("/addAddress")
+    public ResponseEntity<?> addAddressToUser(String username, Address address){
+        userService.addAddressToUser(username, address);
+        return ResponseEntity.ok().build();
+    }
+    //Remove Address from user
+    @DeleteMapping("/deleteAddress")
+    public ResponseEntity<?> deleteAddressFromUser(String username, Long addressId){
+        userService.removeAddressFromUser(username, addressId);
+        return ResponseEntity.ok().build();
+    }
+
+
+
 }
