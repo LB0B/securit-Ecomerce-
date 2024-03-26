@@ -1,11 +1,11 @@
 package net.arkx.userservice.web;
 
-import net.arkx.userservice.entities.Role;
+import net.arkx.userservice.entities.Notification;
 import net.arkx.userservice.entities.User;
-import net.arkx.userservice.exception.userExceptions.DuplicateUsernameException;
-import net.arkx.userservice.exception.userExceptions.InvalidEmailException;
-import net.arkx.userservice.exception.userExceptions.InvalidPasswordException;
-import net.arkx.userservice.exception.userExceptions.UserNotFoundException;
+import net.arkx.userservice.exceptions.userExceptions.DuplicateUsernameException;
+import net.arkx.userservice.exceptions.userExceptions.InvalidEmailException;
+import net.arkx.userservice.exceptions.userExceptions.InvalidPasswordException;
+import net.arkx.userservice.exceptions.userExceptions.UserNotFoundException;
 import net.arkx.userservice.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -108,14 +108,27 @@ public class UserController {
     public User deleteByUsername(@RequestParam String username){
         return userService.deleteUserByUsername(username);
     }
-//Add Role to user
+    //Add Role to user
     @PostMapping("/addRole")
     public User addRoletoUser(@RequestParam String username, String role){
         return userService.addRoleToUser(username,role);
 
     }
+    //Delete Role from User
     @DeleteMapping("/deleteRole")
     public User deleteRoleFromUser(@RequestParam String username, String role){
         return userService.deleteRoleFromUser(username,role);
+    }
+    //Add Notification to User
+    @PostMapping("/addNotification")
+    public ResponseEntity<?> addNotificationToUser(String username, Notification notification){
+         userService.addNotificationToUser(username,notification);
+        return ResponseEntity.ok().build();
+    }
+    //Delete Notification From User
+    @DeleteMapping("/deleteNotification")
+    public ResponseEntity<?> deleteNotificationFromUser(String username, Long notificationId){
+         userService.removeNotificationFromUser(username, notificationId);
+         return ResponseEntity.ok().build();
     }
 }

@@ -1,4 +1,4 @@
-package net.arkx.userservice.exception.userExceptions;
+package net.arkx.userservice.exceptions.userExceptions;
 
 public class InvalidEmailException extends RuntimeException{
     public InvalidEmailException(String message) {

@@ -1,11 +1,12 @@
 package net.arkx.userservice.service;
 
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.*;
+import net.arkx.userservice.entities.Notification;
 import net.arkx.userservice.entities.Role;
 import net.arkx.userservice.entities.User;
-import net.arkx.userservice.exception.userExceptions.*;
+import net.arkx.userservice.exceptions.notificationExceptions.NotificationNotFoundException;
+import net.arkx.userservice.exceptions.userExceptions.*;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleAlreadyExistUserException;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleNotFoundException;
 import net.arkx.userservice.repository.RoleRepository;
@@ -194,5 +195,28 @@ public class UserService  {
         roles.remove(role);
         return userRepository.save(userToDeleteRole);
     }
+        // Add notification
+    public User addNotificationToUser(String username, Notification notification){
+        User user = userRepository.findByUsername(username);
+        notification.setUser(user);
+        user.getNotifications().add(notification);
+        return userRepository.save(user);
+    }
+    //Delete Notification from User
+    public User removeNotificationFromUser(String username, Long notificationId){
+        User user = userRepository.findByUsername(username);
+            if(user==null){
+                throw new UserNotFoundException("User not found with username: " + username);
+            }
+        Notification notificationToRemove = user.getNotifications().stream()
+                .filter(notification -> notification.getId().equals(notificationId))
+                .findFirst()
+                .orElseThrow(()->new NotificationNotFoundException("Notification not found with ID: " + notificationId));
+            user.getNotifications().remove(notificationToRemove);
+            notificationToRemove.setUser(null);
+            userRepository.save(user);
+            return user;
 
+
+    }
 }

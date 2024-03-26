@@ -1,8 +1,6 @@
 package net.arkx.userservice.service;
 
 import net.arkx.userservice.entities.Role;
-import net.arkx.userservice.entities.User;
-import net.arkx.userservice.exception.userExceptions.UserAlreadyExistException;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleAlreadyExistUserException;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleNotFoundException;
 import net.arkx.userservice.repository.RoleRepository;
