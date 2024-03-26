@@ -3,6 +3,7 @@ package net.arkx.userservice.web;
 import net.arkx.userservice.entities.Address;
 import net.arkx.userservice.entities.Notification;
 import net.arkx.userservice.entities.User;
+import net.arkx.userservice.entities.WishList;
 import net.arkx.userservice.exceptions.userExceptions.DuplicateUsernameException;
 import net.arkx.userservice.exceptions.userExceptions.InvalidEmailException;
 import net.arkx.userservice.exceptions.userExceptions.InvalidPasswordException;
@@ -145,7 +146,16 @@ public class UserController {
         userService.removeAddressFromUser(username, addressId);
         return ResponseEntity.ok().build();
     }
-
-
-
+    //Add Wishlist to User
+    @PostMapping("/addWishlist")
+    public ResponseEntity <?> addWishlistToUser(String username, WishList wishList){
+        userService.addWishlistToUser(username,wishList);
+        return ResponseEntity.ok().build();
+    }
+    //Delete Wishlist From User
+    @DeleteMapping("/deleteWishlist")
+    public ResponseEntity <?> deleteWishlistFromUser(String username, Long wishlistId){
+        userService.removeWishlistFromUser(username, wishlistId);
+        return ResponseEntity.ok().build();
+    }
 }

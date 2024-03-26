@@ -2,15 +2,13 @@ package net.arkx.userservice.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.*;
-import net.arkx.userservice.entities.Address;
-import net.arkx.userservice.entities.Notification;
-import net.arkx.userservice.entities.Role;
-import net.arkx.userservice.entities.User;
+import net.arkx.userservice.entities.*;
 import net.arkx.userservice.exceptions.addressException.AddressNotFoundException;
 import net.arkx.userservice.exceptions.notificationExceptions.NotificationNotFoundException;
 import net.arkx.userservice.exceptions.userExceptions.*;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleAlreadyExistUserException;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleNotFoundException;
+import net.arkx.userservice.exceptions.wishlistExcpetions.wishlistNotFoundException;
 import net.arkx.userservice.repository.RoleRepository;
 import net.arkx.userservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -33,8 +31,8 @@ public class UserService  {
         this.roleRepository = roleRepository;
     }
 
-    public User save(User user) {
-        return userRepository.save(user);
+    public void save(User user) {
+         userRepository.save(user);
     }
 
 
@@ -244,9 +242,31 @@ public class UserService  {
         addressToRemove.setUser(null);
         userRepository.save(user);
     }
+    //Add WishList to User
+    public void addWishlistToUser(String username, WishList wishList){
+        User user = userRepository.findByUsername(username);
+        if(user==null){
+            throw new UserNotFoundException("User not found with username: " + username);
+        }
+        wishList.setUser(user);
+        user.getWishLists().add(wishList);
+        userRepository.save(user);
+    }
+    //Delete Wishlist from User
+    public void removeWishlistFromUser(String username, Long wishlistId){
+        User user = userRepository.findByUsername(username);
+        if(user==null){
+            throw new UserNotFoundException("User not found with username: " + username);
+        }
+        WishList wishListToRemove = user.getWishLists().stream()
+                .filter(wishList -> wishList.getId().equals(wishlistId))
+                .findFirst()
+                .orElseThrow(()->new wishlistNotFoundException("wishlist not found with ID: " + wishlistId));
 
-
-
+        user.getWishLists().remove(wishListToRemove);
+        wishListToRemove.setUser(null);
+        userRepository.save(user);
+    }
 
 
 }
