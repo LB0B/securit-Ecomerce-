@@ -9,7 +9,11 @@ import lombok.*;
 @Getter @Setter @ToString @NoArgsConstructor @AllArgsConstructor
 //Product model
 public class Product {
-    private Long id;
+    private long id;
     private String name;
-    private Double price;
+    private double price;
+    //If product has promo
+    private boolean promo;
+    //The amount of the discount
+    private double discount;
 }

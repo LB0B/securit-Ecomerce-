@@ -1,6 +1,7 @@
 package net.arkx.productservice.web;
 
 import net.arkx.productservice.entities.Product;
+import net.arkx.productservice.entities.Promo;
 import net.arkx.productservice.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +40,10 @@ public class ProductController {
 
         productService.delete(idToDelete);
 
+    }
+    @PostMapping("promos")
+    public void addPromoWithProducts(@RequestBody Promo promo){
+        productService.addPromo(promo);
     }
 
 

@@ -24,6 +24,7 @@ public class Order {
     private User user;
     private long user_id;
     //add invoice attribute
+    @OneToOne
     private Invoice invoice;
 
 }

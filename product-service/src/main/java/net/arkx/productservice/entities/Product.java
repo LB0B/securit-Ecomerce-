@@ -13,11 +13,9 @@ import java.util.Set;
 @Entity
 public class Product {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     private String name;
     private Double price;
-    @OneToMany(mappedBy = "product")
-    private List<Promo> promos;
     @ManyToMany
     @JoinTable(
             name = "product_subcategory",
@@ -27,4 +25,8 @@ public class Product {
     private Set<SubCategory> subcategories;
     private String description;
     private String image;
+    //If product has promo
+    private boolean promo;
+    //The amount of the discount
+    private double discount;
 }

@@ -1,6 +1,7 @@
 package net.arkx.orderservice;
 
 import net.arkx.orderservice.entities.Order;
+import net.arkx.orderservice.repository.OrderRepository;
 import net.arkx.orderservice.service.OrderService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -19,7 +20,7 @@ public class OrderServiceApplication {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(OrderService userService) {
+    CommandLineRunner commandLineRunner(OrderRepository orderRepository) {
         return args -> {
             List<Order> orderList = List.of(
                     Order.builder()
@@ -35,7 +36,7 @@ public class OrderServiceApplication {
                             .user_id(10L)
                             .build());
 
-            orderList.forEach(userService::addOrder);
+            orderList.forEach(orderRepository::save);
         };
 
     }
