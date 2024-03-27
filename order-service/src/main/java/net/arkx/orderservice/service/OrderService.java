@@ -28,9 +28,15 @@ public class OrderService {
     //Generate invoice with order creation
     public void addOrder(Order order) {
         double amount = 0;
+        double price;
         List<Product> products = order.getProducts();
         for (Product product:products) {
-            amount = amount + product.getPrice();
+            price = product.getPrice();
+            if (product.isPromo()){
+                double discount = product.getDiscount();
+                price = price - price * discount / 100;
+            }
+            amount = amount + price;
         }
         Invoice invoice = new Invoice();
         invoice.setAmount(amount);

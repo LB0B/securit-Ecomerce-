@@ -2,13 +2,13 @@ package net.arkx.productservice.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import net.arkx.productservice.entities.Product;
+import net.arkx.productservice.entities.Promo;
 import net.arkx.productservice.entities.SubCategory;
 import net.arkx.productservice.repository.ProductRepository;
 import net.arkx.productservice.repository.PromoRepository;
 import net.arkx.productservice.repository.SubCategoryRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,10 +18,13 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     private final SubCategoryRepository subcategoryRepository;
-    public ProductService(ProductRepository productRepository,SubCategoryRepository subCategoryRepository)
+    private final PromoRepository promoRepository;
+
+    public ProductService(ProductRepository productRepository, SubCategoryRepository subCategoryRepository, PromoRepository promoRepository)
     {
         this.productRepository = productRepository;
         this.subcategoryRepository=subCategoryRepository;
+        this.promoRepository = promoRepository;
     }
     //code
 
@@ -52,6 +55,15 @@ public class ProductService {
         productRepository.deleteById(idToDelete);
     }
 
-    //fin code
+    //Add products to promo
+    public void addPromo(Promo promo){
+        promo.getProductsId().forEach(dto -> {
+            Product product = getProductById(dto.getId());
+            product.setPromo(true);
+            product.setDiscount(dto.getDiscount());
+            productRepository.save(product);
+        });
+        promoRepository.save(promo);
+    }
 
 }
