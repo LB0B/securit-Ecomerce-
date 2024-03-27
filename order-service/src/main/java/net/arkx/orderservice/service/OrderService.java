@@ -106,6 +106,8 @@ public class OrderService {
             amount = amount - amount*discount/100;
             invoice.setAmount(amount);
             order.setInvoice(invoice);
+            invoiceRepository.save(invoice);
+            orderRepository.save(order);
         }
         else{
             throw new Exception();
