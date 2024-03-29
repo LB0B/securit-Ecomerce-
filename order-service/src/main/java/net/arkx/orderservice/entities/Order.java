@@ -22,7 +22,7 @@ public class Order {
     private String status;
     @Transient
     private User user;
-    private long user_id;
+    private long userId;
     //add invoice attribute
     @OneToOne
     private Invoice invoice;

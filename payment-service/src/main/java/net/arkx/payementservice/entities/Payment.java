@@ -1,5 +1,6 @@
 package net.arkx.payementservice.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import net.arkx.payementservice.model.Order;
@@ -12,9 +13,11 @@ public class Payment {
     private Long amount;
     @ManyToOne
     @JoinColumn(name = "payment_method_id")
+    @JsonIgnoreProperties({"id"})
     private PaymentMethod paymentMethod;
     @Transient
     private Order order;
+    private Long orderId;
 
 
 

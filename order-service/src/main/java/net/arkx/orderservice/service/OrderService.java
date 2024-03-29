@@ -4,10 +4,14 @@ import net.arkx.orderservice.DTOs.OrderDto;
 import net.arkx.orderservice.entities.Coupon;
 import net.arkx.orderservice.entities.Invoice;
 import net.arkx.orderservice.entities.Order;
+import net.arkx.orderservice.exceptions.order.OrderNotFoundException;
+import net.arkx.orderservice.exceptions.user.UserNotFoundException;
 import net.arkx.orderservice.model.Product;
+import net.arkx.orderservice.model.User;
 import net.arkx.orderservice.repository.CouponRepository;
 import net.arkx.orderservice.repository.InvoiceRepository;
 import net.arkx.orderservice.repository.OrderRepository;
+import net.arkx.orderservice.users.UserRestClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,11 +22,13 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final InvoiceRepository invoiceRepository;
     private final CouponRepository couponRepository;
+    private final UserRestClient userRestClient;
 
-    public OrderService(OrderRepository orderRepository, InvoiceRepository invoiceRepository, CouponRepository couponRepository) {
+    public OrderService(OrderRepository orderRepository, InvoiceRepository invoiceRepository, CouponRepository couponRepository, UserRestClient userRestClient) {
         this.orderRepository = orderRepository;
         this.invoiceRepository = invoiceRepository;
         this.couponRepository = couponRepository;
+        this.userRestClient = userRestClient;
     }
 
     //Generate invoice with order creation
@@ -49,14 +55,19 @@ public class OrderService {
         return orderRepository.findAll();
     }
     //get order by id
-    public Order getOrderById(long id) throws Exception {
-        Optional<Order> optional = orderRepository.findById(id);
-        if (optional.isPresent()){
-            return optional.get();
-        }
-        else{
-            throw new Exception();
-        }
+    public Order getOrderById(long id) {
+       Order order = orderRepository.findById(id).orElse(null);
+       if(order!=null){
+           User user = userRestClient.findUserById(order.getUserId());
+           if(user!=null){
+               order.setUser(user);
+               return order;
+           }else {
+               throw new UserNotFoundException("User not found for order with id: " + id);
+           }
+       }else{
+           throw new OrderNotFoundException("Order not found  with id: " + id);
+       }
     }
     //delete all orders
     public void deleteAllOrders(){

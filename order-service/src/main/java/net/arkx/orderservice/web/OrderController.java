@@ -21,8 +21,8 @@ public class OrderController {
     public List<Order> getOrders(){
         return orderService.getAllOrders();
     }
-    @GetMapping("{id}")
-    public Order getOrderById(@PathVariable long id) throws Exception {
+    @GetMapping("/{id}")
+    public Order getOrderById(@PathVariable long id)  {
         return orderService.getOrderById(id);
     }
 //    @PostMapping
