@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("orders")
+@RequestMapping("/orders")
 public class OrderController {
     private final OrderService orderService;
 
@@ -22,7 +22,7 @@ public class OrderController {
         return orderService.getAllOrders();
     }
     @GetMapping("/{id}")
-    public Order getOrderById(@PathVariable long id)  {
+    public Order getOrderById(@PathVariable Long id)  {
         return orderService.getOrderById(id);
     }
 //    @PostMapping

@@ -16,7 +16,7 @@ public class Promo {
     private long id;
     @OneToMany
     @JoinColumn(name = "product_id")
-    private List<ProductDTO> productsId;
+    private List<Product> productsId;
     private String name;
     private int duration;
 }

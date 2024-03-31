@@ -3,6 +3,7 @@ package net.arkx.payementservice.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import net.arkx.payementservice.enums.StatusPayement;
 import net.arkx.payementservice.model.Order;
 
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor @ToString
@@ -11,9 +12,11 @@ public class Payment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long amount;
+    @Enumerated(EnumType.STRING)
+    private StatusPayement status;
     @ManyToOne
     @JoinColumn(name = "payment_method_id")
-    @JsonIgnoreProperties({"id"})
+  //  @JsonIgnoreProperties({"id"})
     private PaymentMethod paymentMethod;
     @Transient
     private Order order;
