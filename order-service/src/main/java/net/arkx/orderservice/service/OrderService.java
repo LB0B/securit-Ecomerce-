@@ -56,9 +56,9 @@ public class OrderService {
     }
     //get order by id
     public Order getOrderById(long id) {
-       Order order = orderRepository.findById(id).orElse(null);
+       Order order = orderRepository.getOrderById(id);
        if(order!=null){
-           User user = userRestClient.findUserById(order.getUserId());
+           User user = userRestClient.getUserById(order.getUserId());
            if(user!=null){
                order.setUser(user);
                return order;
