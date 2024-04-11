@@ -16,7 +16,7 @@ public class RoleController {
 
     //Create Role
     @PostMapping("/createRole")
-    public Role createRole( Role newRole){
+    public Role createRole(@RequestParam String newRole){
         return roleService.createRole(newRole);
     }
     //Get All Roles
@@ -25,8 +25,8 @@ public class RoleController {
         return roleService.getAllRoles();
     }
     //Get Role By Name
-    @GetMapping("/Role/{name}")
-    public Role getRoleByName(@PathVariable String name){
+    @GetMapping("/roleByName")
+    public Role getRoleByName(@RequestBody String name){
         return roleService.getRoleByName(name);
     }
     // Get Role By Id
