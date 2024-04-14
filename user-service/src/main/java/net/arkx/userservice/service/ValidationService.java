@@ -1,16 +1,19 @@
 package net.arkx.userservice.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import net.arkx.userservice.entities.User;
 import net.arkx.userservice.entities.Validation;
 import net.arkx.userservice.repository.ValidationRespository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Random;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
-
+@Slf4j
 @Service
 public class ValidationService {
     private final ValidationRespository validationRespository;
@@ -41,5 +44,10 @@ public class ValidationService {
     }
     public Validation readingBasedOnCode(String code){
         return validationRespository.findByCode(code).orElseThrow(()-> new EntityNotFoundException("Your code is Invalid"));
+    }
+    @Scheduled(cron = "*/30 * * * * *")
+    @Transactional
+    public void cleanTableValidation(){
+            validationRespository.deleteAllByExpirationBefore(Instant.now());
     }
 }

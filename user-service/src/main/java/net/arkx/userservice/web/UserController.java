@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 @RestController @RequestMapping("/users")
@@ -27,33 +28,49 @@ public class UserController {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
     }
+    //Refresh Token
+    @PostMapping("/refresh-token")
+    public @ResponseBody Map<String, String> refreshToken (@RequestBody Map<String, String> refreshTokenRequest){
+        return jwtService.refreshToken(refreshTokenRequest);
+    }
 
     //Create user
-    @PostMapping("/createUser")
-    public User createUser(@RequestBody UserRole userRole){
+    @PostMapping("/signIn")
+    public User signIn(@RequestBody UserRole userRole){
 
         return userService.createUser(userRole);
     }
-    //Compte Activation
+    // Activation
     @PostMapping("/activation")
     public void activation (@RequestBody Map<String, String> activation){
         userService.activation(activation);
     }
-    //Connexion
-    @PostMapping("/connexion")
-    public Map<String, String> connexion(@RequestBody AuthenticationDTO authenticationDTO) {
+    //LogOut
+    @PostMapping("/logout")
+    public void logout (){
+        jwtService.deconnexion();
+    }
+    //LogIn
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody AuthenticationDTO authenticationDTO) {
         User user = userService.getUserByUsername(authenticationDTO.username());
+         long currentTime = System.currentTimeMillis();
         if (user != null && user.isActif()) {
             final Authentication authenticate = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationDTO.username(), authenticationDTO.password())
             );
             if (authenticate.isAuthenticated()) {
+                user.setLastLogin(new Date(currentTime));
+                userService.save(user);
                 return jwtService.generate(authenticationDTO.username());
+            }else{
+                throw new AccountNotActiveException("Adad !!");
+
             }
         } else {
             throw new AccountNotActiveException("Account is not active !!");
         }
-        return null;
+
     }
     //Get all users
     @GetMapping
@@ -89,16 +106,14 @@ public class UserController {
     }
 
     // Update Password
-    @PutMapping("/setPassword/{username}/password")
-    public ResponseEntity<?> setPassword(@PathVariable String username, @RequestBody String newPassword) {
-        try {
-            User updatePassword = userService.updatePassword(username, newPassword);
-            return ResponseEntity.ok(updatePassword);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (InvalidPasswordException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PostMapping("/update-password")
+    public void updatePwd (@RequestBody Map<String, String> activation){
+        userService.updatePassword(activation);
+    }
+    //New Password
+    @PostMapping("/new-password")
+    public void newPwd (@RequestBody Map<String, String> activation){
+        userService.newPassword(activation);
     }
 
     //Update Email
@@ -164,14 +179,15 @@ public class UserController {
 
     //Add Address to User
     @PostMapping("/addAddress")
-    public ResponseEntity<?> addAddressToUser(@RequestBody String username,@RequestBody Address address){
-        userService.addAddressToUser(username, address);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Address> addAddressToUser(@RequestBody Address address){
+        return ResponseEntity.ok(userService.addAddressToUser(address));
     }
     //Remove Address from user
     @DeleteMapping("/deleteAddress")
-    public ResponseEntity<?> deleteAddressFromUser(@RequestParam String username,@RequestParam Long addressId){
-        userService.removeAddressFromUser(username, addressId);
+    public ResponseEntity<?> deleteAddressFromUser(@RequestParam Long addressId) throws Exception {
+
+        userService.removeAddressFromUser(addressId);
+
         return ResponseEntity.ok().build();
     }
     //Add Wishlist to User

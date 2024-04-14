@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import net.arkx.userservice.entities.Jwt;
 import net.arkx.userservice.entities.User;
 import net.arkx.userservice.service.UserService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,21 +27,33 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = null;
+        String token ;
+        Jwt tokenDb = null;
         String username = null;
         boolean isTokenExpired = true;
-
+        // Extract token from the Authorization header
         final String authorization = request.getHeader("Authorization");
-        if (authorization != null && authorization.startsWith("Bearer")) {
+        if (authorization != null && authorization.startsWith("Bearer ")) {
             token = authorization.substring(7);
+            // Get token information from the database
+            tokenDb = jwtService.tokenByValue(token);
             isTokenExpired = jwtService.isTokenExpired(token);
+            // Extract username from the token
             username = jwtService.extractUsername(token);
         }
-        if (!isTokenExpired && username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService.getUserByUsername(username);
+        // Check if the token is not expired, matches the username, and there is no existing authentication
+        if (!isTokenExpired
+                && tokenDb.getUser().getUsername().equals(username)
+                && SecurityContextHolder.getContext().getAuthentication() == null
+        ) {
+            // Load user details from the database
+            UserDetails userDetails = userService.loadUserByUsername(username);
+            // Create an authentication token
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            // Set the authentication token in the security context
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
+        // Continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

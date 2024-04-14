@@ -3,6 +3,7 @@ package net.arkx.userservice.service;
 import jakarta.inject.Singleton;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.arkx.userservice.entities.*;
 import net.arkx.userservice.exceptions.addressException.AddressNotFoundException;
 import net.arkx.userservice.exceptions.notificationExceptions.NotificationNotFoundException;
@@ -10,6 +11,7 @@ import net.arkx.userservice.exceptions.userExceptions.*;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleAlreadyExistUserException;
 import net.arkx.userservice.exceptions.RoleExceptions.RoleNotFoundException;
 import net.arkx.userservice.exceptions.wishlistExcpetions.wishlistNotFoundException;
+import net.arkx.userservice.repository.AddressRepository;
 import net.arkx.userservice.repository.RoleRepository;
 import net.arkx.userservice.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class UserService implements UserDetailsService {
@@ -34,7 +37,7 @@ public class UserService implements UserDetailsService {
     private final RoleRepository roleRepository;
     private final ValidationService validationService;
     private final RoleService roleService;
-
+    private final AddressRepository addressRepository;
 
     public void save(User user) {
 
@@ -44,6 +47,7 @@ public class UserService implements UserDetailsService {
 
     //Create User
     public User createUser(UserRole userRole) {
+        long currentTime = System.currentTimeMillis();
         User user = userRole.getUser();
         if (user.getUsername() == null || user.getUsername().isEmpty()) {
             throw new EntityNotFoundException("Username can't be empty");
@@ -60,6 +64,7 @@ public class UserService implements UserDetailsService {
 
         addRoles(user, userRole.getRoles().stream().filter(s -> s != null && !s.isEmpty()).collect(Collectors.toList()));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setCreatedAt(new Date(currentTime));
         user = userRepository.save(user);
         validationService.register(user);
         return user;
@@ -96,6 +101,8 @@ public class UserService implements UserDetailsService {
     //Update User firstname & lastname
     public User updateName(String username, String firstName, String lastName) {
         User existingUser = userRepository.findByUsername(username);
+        long currentTime = System.currentTimeMillis();
+
         if (existingUser != null) {
             if (firstName != null) {
                 existingUser.setFirstName(firstName);
@@ -103,6 +110,7 @@ public class UserService implements UserDetailsService {
             if (lastName != null) {
                 existingUser.setLastName(lastName);
             }
+            existingUser.setUpdateAt(new Date(currentTime));
             userRepository.save(existingUser);
         }
         return existingUser;
@@ -111,6 +119,8 @@ public class UserService implements UserDetailsService {
     // Update username
     public User updateUsername(String username, String newUsername) {
         User existingUser = userRepository.findByUsername(username);
+        long currentTime = System.currentTimeMillis();
+
         if (existingUser == null) {
             throw new EntityNotFoundException("Cannot find user with username: " + username);
         }
@@ -119,6 +129,8 @@ public class UserService implements UserDetailsService {
             throw new DuplicateUsernameException("Username " + newUsername + " is already taken");
         }
         existingUser.setUsername(newUsername);
+        existingUser.setUpdateAt(new Date(currentTime));
+
 
         return userRepository.save(existingUser);
 
@@ -127,6 +139,8 @@ public class UserService implements UserDetailsService {
     //**********************************************Update mail******************************
     public User updateEmail(String username, String newEmail) {
         User existingUser = userRepository.findByUsername(username);
+        long currentTime = System.currentTimeMillis();
+
         if (existingUser == null) {
             throw new EntityNotFoundException("Cannot find user with username: " + username);
         }
@@ -135,6 +149,8 @@ public class UserService implements UserDetailsService {
         }
 
         existingUser.setEmail(newEmail);
+        existingUser.setUpdateAt(new Date(currentTime));
+
         return userRepository.save(existingUser);
     }
 
@@ -145,16 +161,32 @@ public class UserService implements UserDetailsService {
     }
 
     // ********************************* Update password******************************
-    public User updatePassword(String username, String newPassword) {
-        User existingUser = userRepository.findByUsername(username);
-        if (existingUser == null) {
-            throw new EntityNotFoundException("Cannot find user with username: " + username);
+    //Sending a code to the user so he can
+    public void updatePassword(Map<String, String> params) {
+        User user = this.loadUserByUsername(params.get("username"));
+        // log.info("user {}",user);
+        if (user != null) {
+            validationService.register(user);
         }
-        if (!isValidPassword(newPassword)) {
-            throw new InvalidPasswordException("Invalid password format");
+    }
+
+    public void newPassword(Map<String, String> params) {
+
+        User user = this.loadUserByUsername(params.get("username"));
+        Validation validation = validationService.readingBasedOnCode(params.get("code"));
+        log.info("code{}", validation);
+        if (validation.getUser().getUsername().equals(user.getUsername())) {
+            if(this.isValidPassword(params.get("password"))) {
+                user.setPassword(passwordEncoder.encode(params.get("password")));
+                user.setUpdateAt(new Date(System.currentTimeMillis()));
+                userRepository.save(user);
+
+
+            }else {
+                throw new RuntimeException("Invalid password");
+            }
         }
-        existingUser.setPassword(newPassword);
-        return userRepository.save(existingUser);
+
 
     }
 
@@ -194,6 +226,8 @@ public class UserService implements UserDetailsService {
     //Add Role
     public User addRoleToUser(String username, String roleName) {
         User userToAddRole = userRepository.findByUsername(username);
+        long currentTime = System.currentTimeMillis();
+
         if (userToAddRole == null) {
             throw new EntityNotFoundException("User not found with username: " + username);
         }
@@ -210,6 +244,8 @@ public class UserService implements UserDetailsService {
         }
 
         roles.add(role);
+        userToAddRole.setUpdateAt(new Date(currentTime));
+
         return userRepository.save(userToAddRole);
     }
 
@@ -217,6 +253,8 @@ public class UserService implements UserDetailsService {
     //Delete Role
     public User deleteRoleFromUser(String username, String roleName) {
         User userToDeleteRole = userRepository.findByUsername(username);
+        long currentTime = System.currentTimeMillis();
+
         if (userToDeleteRole == null) {
             throw new EntityNotFoundException("User not found with username: " + username);
         }
@@ -232,20 +270,28 @@ public class UserService implements UserDetailsService {
 
         }
         roles.remove(role);
+        userToDeleteRole.setUpdateAt(new Date(currentTime));
+
         return userRepository.save(userToDeleteRole);
     }
 
     // Add notification
     public void addNotificationToUser(String username, Notification notification) {
         User user = userRepository.findByUsername(username);
+        long currentTime = System.currentTimeMillis();
+
         notification.setUser(user);
         user.getNotifications().add(notification);
+        user.setUpdateAt(new Date(currentTime));
+
         userRepository.save(user);
     }
 
     //Delete Notification from User
     public void removeNotificationFromUser(String username, Long notificationId) {
         User user = userRepository.findByUsername(username);
+        long currentTime = System.currentTimeMillis();
+
         if (user == null) {
             throw new EntityNotFoundException("User not found with username: " + username);
         }
@@ -255,50 +301,67 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new NotificationNotFoundException("Notification not found with ID: " + notificationId));
         user.getNotifications().remove(notificationToRemove);
         notificationToRemove.setUser(null);
+        user.setUpdateAt(new Date(currentTime));
+
         userRepository.save(user);
 
     }
 
     //Add Address To User
-    public void addAddressToUser(String username, Address address) {
+    public Address addAddressToUser(Address address) {
+        String username = address.getUser().getUsername();
+        long currentTime = System.currentTimeMillis();
+
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new EntityNotFoundException("User not found with username: " + username);
         }
         address.setUser(user);
         user.getAddresses().add(address);
+        userRepository.findByUsername(username).setUpdateAt(new Date(currentTime));
+
         userRepository.save(user);
+        address.setUser(null);
+
+
+        return address;
     }
 
     //Delete Address from User
-    public void removeAddressFromUser(String username, Long addressId) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new EntityNotFoundException("User not found with username: " + username);
+    public void removeAddressFromUser(Long addressId) throws Exception {
+        Optional<Address> address = addressRepository.findById(addressId);
+        if (address.isPresent()) {
+            User user = address.get().getUser();
+            long currentTime = System.currentTimeMillis();
+            user.setUpdateAt(new Date(currentTime));
+            addressRepository.deleteById(addressId);
+            userRepository.save(user);
+        } else {
+            throw new Exception("Can't find this address id: " + addressId);
         }
-        Address addressToRemove = user.getAddresses().stream()
-                .filter(address -> address.getId().equals(addressId))
-                .findFirst()
-                .orElseThrow(() -> new AddressNotFoundException("Address not found with ID: " + addressId));
-        user.getAddresses().remove(addressToRemove);
-        addressToRemove.setUser(null);
-        userRepository.save(user);
+
     }
 
     //Add WishList to User
     public void addWishlistToUser(String username, WishList wishList) {
         User user = userRepository.findByUsername(username);
+        long currentTime = System.currentTimeMillis();
+
         if (user == null) {
             throw new EntityNotFoundException("User not found with username: " + username);
         }
         wishList.setUser(user);
         user.getWishLists().add(wishList);
+        user.setUpdateAt(new Date(currentTime));
+
         userRepository.save(user);
     }
 
     //Delete Wishlist from User
     public void removeWishlistFromUser(String username, Long wishlistId) {
         User user = userRepository.findByUsername(username);
+        long currentTime = System.currentTimeMillis();
+
         if (user == null) {
             throw new EntityNotFoundException("User not found with username: " + username);
         }
@@ -309,6 +372,8 @@ public class UserService implements UserDetailsService {
 
         user.getWishLists().remove(wishListToRemove);
         wishListToRemove.setUser(null);
+        user.setUpdateAt(new Date(currentTime));
+
         userRepository.save(user);
     }
 
@@ -334,5 +399,6 @@ public class UserService implements UserDetailsService {
             user.getRoles().add(roleService.createRole(roleName));
         }
     }
+
 
 }

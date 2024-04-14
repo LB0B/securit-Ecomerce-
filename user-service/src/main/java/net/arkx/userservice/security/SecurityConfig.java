@@ -5,6 +5,7 @@ import net.arkx.userservice.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -23,9 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
-import static jakarta.ws.rs.HttpMethod.GET;
-import static jakarta.ws.rs.HttpMethod.POST;
+import static jakarta.ws.rs.HttpMethod.*;
 
 
 @Configuration
@@ -51,9 +50,20 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorize ->
-                                authorize.requestMatchers(POST, "/users/createUser").permitAll()
-                                        .requestMatchers(POST, "/users/connexion").permitAll()
-                                        .requestMatchers(POST, "/users/activation").permitAll()
+                                authorize.requestMatchers(HttpMethod.GET, "/users/{username}").hasAuthority("Admin")
+                                        .requestMatchers(HttpMethod.DELETE, "/users/deleteUser",
+                                                "/users/deleteRole",
+                                                "/roles/deleteRole/**")
+                                        .hasAnyAuthority("Admin", "Manager")
+                                        .requestMatchers(HttpMethod.POST, "/roles/createRole").hasAnyAuthority("Admin", "Manager")
+                                        .requestMatchers(HttpMethod.POST,
+                                                "/users/signIn",
+                                                "/users/login",
+                                                "/users/activation",
+                                                "/users/update-password",
+                                                "/users/new-password",
+                                                "/users/refresh-token")
+                                        .permitAll()
                                         .requestMatchers( "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                                         .anyRequest()
                                         .authenticated()
