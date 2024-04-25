@@ -19,7 +19,6 @@ public class Payment {
   //  @JsonIgnoreProperties({"id"})
     private PaymentMethod paymentMethod;
     @Transient
-
     private Order order;
     private Long orderId;
 

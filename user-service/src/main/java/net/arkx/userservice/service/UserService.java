@@ -1,20 +1,14 @@
 package net.arkx.userservice.service;
 
-import jakarta.inject.Singleton;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
 import net.arkx.userservice.entities.*;
-import net.arkx.userservice.exceptions.addressException.AddressNotFoundException;
-import net.arkx.userservice.exceptions.notificationExceptions.NotificationNotFoundException;
+
 import net.arkx.userservice.exceptions.userExceptions.*;
-import net.arkx.userservice.exceptions.RoleExceptions.RoleAlreadyExistUserException;
-import net.arkx.userservice.exceptions.RoleExceptions.RoleNotFoundException;
-import net.arkx.userservice.exceptions.wishlistExcpetions.wishlistNotFoundException;
 import net.arkx.userservice.repository.AddressRepository;
 import net.arkx.userservice.repository.RoleRepository;
 import net.arkx.userservice.repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -53,10 +47,10 @@ public class UserService implements UserDetailsService {
             throw new EntityNotFoundException("Username can't be empty");
         }
         if (user.getEmail() == null || !isValidEmail(user.getEmail())) {
-            throw new InvalidEmailException("Invalid email format: " + user.getEmail());
+            throw new InvalidEntityException("Invalid email format: " + user.getEmail());
         }
         if (user.getPassword() == null || !isValidPassword(user.getPassword())) {
-            throw new InvalidPasswordException("Invalid password format");
+            throw new InvalidEntityException("Invalid password format");
         }
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new EntityAlreadyExistException("This userName " + user.getUsername() + "  already exist ");
@@ -126,7 +120,7 @@ public class UserService implements UserDetailsService {
         }
         User existingNewUsernameUser = userRepository.findByUsername(newUsername);
         if (existingNewUsernameUser != null && !existingNewUsernameUser.getId().equals(existingUser.getId())) {
-            throw new DuplicateUsernameException("Username " + newUsername + " is already taken");
+            throw new DuplicateEntityException("Username " + newUsername + " is already taken");
         }
         existingUser.setUsername(newUsername);
         existingUser.setUpdateAt(new Date(currentTime));
@@ -145,7 +139,7 @@ public class UserService implements UserDetailsService {
             throw new EntityNotFoundException("Cannot find user with username: " + username);
         }
         if (!isValidEmail(newEmail)) {
-            throw new InvalidEmailException("Invalid email format: " + newEmail);
+            throw new InvalidEntityException("Invalid email format: " + newEmail);
         }
 
         existingUser.setEmail(newEmail);
@@ -260,13 +254,13 @@ public class UserService implements UserDetailsService {
         }
         Role role = roleRepository.findByName(roleName);
         if (role == null) {
-            throw new RoleNotFoundException("Role not found with name: " + roleName);
+            throw new EntityNotFoundException("Role not found with name: " + roleName);
 
         }
         Set<Role> roles = userToDeleteRole.getRoles();
 
         if (!roles.contains(role)) {
-            throw new RoleAlreadyExistUserException("User already has this role: " + role.getName());
+            throw new EntityAlreadyExistException("User already has this role: " + role.getName());
 
         }
         roles.remove(role);
@@ -298,7 +292,7 @@ public class UserService implements UserDetailsService {
         Notification notificationToRemove = user.getNotifications().stream()
                 .filter(notification -> notification.getId().equals(notificationId))
                 .findFirst()
-                .orElseThrow(() -> new NotificationNotFoundException("Notification not found with ID: " + notificationId));
+                .orElseThrow(() -> new EntityNotFoundException("Notification not found with ID: " + notificationId));
         user.getNotifications().remove(notificationToRemove);
         notificationToRemove.setUser(null);
         user.setUpdateAt(new Date(currentTime));
@@ -368,7 +362,7 @@ public class UserService implements UserDetailsService {
         WishList wishListToRemove = user.getWishLists().stream()
                 .filter(wishList -> wishList.getId().equals(wishlistId))
                 .findFirst()
-                .orElseThrow(() -> new wishlistNotFoundException("wishlist not found with ID: " + wishlistId));
+                .orElseThrow(() -> new EntityNotFoundException("wishlist not found with ID: " + wishlistId));
 
         user.getWishLists().remove(wishListToRemove);
         wishListToRemove.setUser(null);
@@ -383,7 +377,11 @@ public class UserService implements UserDetailsService {
         if (Instant.now().isAfter(validation.getExpiration())) {
             throw new RuntimeException("Your code has been expired");
         }
-        User actifUser = userRepository.findById(validation.getUser().getId()).orElseThrow(() -> new EntityNotFoundException("Unknown user"));
+        User actifUser = userRepository.findById(validation
+                .getUser()
+                .getId())
+                .orElseThrow(
+                        () -> new EntityNotFoundException("Unknown user"));
         actifUser.setActif(true);
         userRepository.save(actifUser);
     }

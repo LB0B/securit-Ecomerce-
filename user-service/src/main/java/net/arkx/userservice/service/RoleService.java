@@ -1,8 +1,8 @@
 package net.arkx.userservice.service;
 
 import net.arkx.userservice.entities.Role;
-import net.arkx.userservice.exceptions.RoleExceptions.RoleAlreadyExistUserException;
-import net.arkx.userservice.exceptions.RoleExceptions.RoleNotFoundException;
+
+import net.arkx.userservice.exceptions.userExceptions.EntityNotFoundException;
 import net.arkx.userservice.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +37,7 @@ public class RoleService {
         if (role != null) {
             return role;
         } else {
-            throw new RoleNotFoundException("Can't find this Role with Id: " + id);
+            throw new EntityNotFoundException("Can't find this Role with Id: " + id);
         }
     }
 

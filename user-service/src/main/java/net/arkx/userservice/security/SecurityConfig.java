@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorize ->
-                                authorize.requestMatchers(HttpMethod.GET, "/users/{username}").hasAuthority("Admin")
+                                authorize.requestMatchers(HttpMethod.GET, "/users/{username}").hasAuthority("ROLE_Admin")
                                         .requestMatchers(HttpMethod.DELETE, "/users/deleteUser",
                                                 "/users/deleteRole",
                                                 "/roles/deleteRole/**")

@@ -100,7 +100,7 @@ public class UserController {
             return ResponseEntity.ok(updatedUser);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (DuplicateUsernameException e) {
+        } catch (DuplicateEntityException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -124,7 +124,7 @@ public class UserController {
             return ResponseEntity.ok(updateEmail);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (InvalidEmailException e) {
+        } catch (InvalidEntityException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
